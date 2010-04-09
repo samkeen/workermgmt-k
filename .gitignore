@@ -1,0 +1,5 @@
+application/config/config.php
+application/config/workermgmt.php
+application/cache/*
+application/logs/*
+nbproject
