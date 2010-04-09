@@ -7,3 +7,14 @@ This app does require some non default PHP extentions
 - php xmlrpc extention http://us.php.net/manual/en/book.xmlrpc.php
 - php curl extention http://php.net/manual/en/book.curl.php
 - php ldap extention http://us.php.net/manual/en/book.ldap.php
+
+INSTALL
+This is a standard Kohana app refer to their docs for the basics
+
+- create application/logs and application/cache and set so apache can write to them
+- create local config files
+cp application/config/config_dist.php application/config/config.php
+AND
+cp application/config/workermgmt_dist.php application/config/workermgmt.php
+
+For each config file set appropriate settings for your environment.
