@@ -87,7 +87,6 @@ class Bugzilla_Core {
      * );
      */
     public function newhire_filing($request_type, array $new_hiring_input) {
-        global $fm; // Formmanger
         $result = array(
                 'error_code' => null,
                 'error_message' => null,
@@ -228,8 +227,8 @@ class Bugzilla_Core {
          * rest of these, just redrect to login.php
          */
         if($result['error_code']&&$result['error_code']==self::CODE_LOGIN_REQUIRED) {
-            $fm->set_global_feedback('error', $result['error_message']);
-            redirect('login.php');
+            client::messageSend($result['error_message'], E_USER_ERROR);
+            url::redirect('login');
         }
         if(u::arrge($filing_response, 'id')) {
             $result['bug_id'] = u::arrge($filing_response, 'id');
