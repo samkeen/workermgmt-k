@@ -135,6 +135,7 @@ class Hiring_Controller extends Template_Controller {
         $manager = new Manager_Model($this->get_ldap());
         $this->select_lists['managers'] = $this->format_manager_list($manager->get_list());
         $form = array(
+            'hire_type' => 'Contractor',
             'contract_type' => '',
             'contractor_category' => '',
             'first_name' => '',
