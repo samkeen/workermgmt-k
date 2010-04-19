@@ -1,3 +1,9 @@
+LICENSING:
+ - All the stock Kohana Files and my files extendng those classes are under
+   the Kohana Liciense : http://kohanaphp.com/license
+ - All my added files not directly extended from the Kohana classes
+   modules/libraries/... are under the MIT license and noted as such in the file.
+
 This is a couple of Web Forms that interact with a Bugzilla installation.
 It is quite specific in the problem it is addressing so it is probably not
 Easily reusable for others but feel free to glean what you can from the various

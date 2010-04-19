@@ -5,6 +5,7 @@
  * Auths against bugzilla and stores the auth cookies to be used to submit bugs
  * for the various Hiring forms.
  *
+ *
  */
 class Authenticate_Controller extends Template_Controller {
 
