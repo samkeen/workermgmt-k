@@ -52,8 +52,10 @@ function toggle_section(section_id, change_to_show) {
   }
 }
 function update_default_username_display() {
-  var first = $("#first_name").val().length>0?$("#first_name").val()[0].toLowerCase():'';
-  $("#default_username").val(
-    first + $("#last_name").val().toLowerCase()
-  );
+    if($("#first_name").length>0) {
+      var first = $("#first_name").val().length>0?$("#first_name").val()[0].toLowerCase():'';
+      $("#default_username").val(
+        first + $("#last_name").val().toLowerCase()
+      );
+    }
 }
