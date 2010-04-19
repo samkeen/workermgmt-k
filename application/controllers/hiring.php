@@ -56,7 +56,7 @@ class Hiring_Controller extends Template_Controller {
      */
     public function employee() {
         $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['managers'] = hiring_forms::format_manager_list($manager->get_list());
+        $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
 
         $form = array(
                 'hire_type' => '',
@@ -135,7 +135,7 @@ class Hiring_Controller extends Template_Controller {
      */
     public function contractor() {
         $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['managers'] = hiring_forms::format_manager_list($manager->get_list());
+        $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
         $form = array(
             'hire_type' => 'Contractor',
             'contract_type' => '',
