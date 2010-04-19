@@ -4,28 +4,28 @@ $lang = array(
 
 
     'first_name' => array(
-        'required' => 'First Name is requred',
+        'required' => 'First Name is required',
         'default' => 'Invalid Input'
     ),
     'last_name' => array(
-        'required' => 'Last Name is requred',
+        'required' => 'Last Name is required',
         'default' => 'Invalid Input'
     ),
     'start_date' => array(
-        'required' => 'Start Date is requred',
+        'required' => 'Start Date is required',
         'default' => 'Invalid Input'
     ),
     'end_date' => array(
-        'required' => 'End Date is requred',
+        'required' => 'End Date is required',
         'default' => 'Invalid Input'
     ),
     'manager' => array(
-        'required' => 'Manager is requred',
+        'required' => 'Manager is required',
         'default' => 'Invalid Input'
     ),
 
     'contract_type' => array(
-        'required' => 'Contract Type is requred',
+        'required' => 'Contract Type is required',
         'default' => 'Invalid Input'
     ),
     'contractor_category' => array(
