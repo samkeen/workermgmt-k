@@ -56,15 +56,9 @@ class Ldap_Core {
    * )
    */
   public function manager_list() {
-    if($manager_list = $this->cached('manager_list')) {
-      return $manager_list;
-    }
     $this->bind_as_user();
     $manager_list = null;
-    kohana::log('debug',"Attempting ldap_search('{$this->base_dn}', '(&(objectClass=mozComPerson)(isManager=TRUE)(!(employeetype=DISABLED)))'");
-    $manager_search = ldap_search(
-      $this->ds(),
-      "{$this->base_dn}",
+    $manager_search = $this->ldap_search(
       '(&(objectClass=mozComPerson)(isManager=TRUE)(!(employeetype=DISABLED)))'
       ,array("mail","employeetype","bugzillaEmail","cn","title")
     );
@@ -78,10 +72,12 @@ class Ldap_Core {
         ."LDAP error:[".ldap_error($this->ds)."]");
     }
     $manager_list = $this->flatten_ldap_results($manager_list);
+    
     $cleaned_list = array();
     foreach ($manager_list as $manager) {
       // ensure keys to keep out of isset?:;
-      $manager = array_merge($manager,array('cn'=>null,'title'=>null,'mail'=>null,'bugzillaemail'=>null));
+      $manager = array_merge(array('cn'=>null,'title'=>null,'mail'=>null,'bugzillaemail'=>null),$manager);
+      
       if(! empty($manager['mail'])) {
         $bugzilla_email = !empty($manager['bugzillaemail'])
           ?$manager['bugzillaemail']
@@ -93,14 +89,6 @@ class Ldap_Core {
         );
       }
     }
-    /**
-     * store list in session to keep from excesivly hitting ldap
-     */
-//    if(is_array($cleaned_list)&&$cleaned_list) {
-//      $this->cache('manager_list', $cleaned_list);
-//    } else {
-//      $this->clear_cache('manager_list');
-//    }
     return $cleaned_list;
   }
   /**
@@ -110,10 +98,6 @@ class Ldap_Core {
    */
   public function manager_attributes($ldap_email) {
     $manager = null;
-    // check if namager list is in seesion and grab from there
-    if($manager = $this->cached('manager',$ldap_email)) {
-      return $manager;
-    }
     $manager = $this->fetch_user_array($ldap_email, array("mail","employeetype","bugzillaEmail","cn","title"));
     return isset($manager[0])?$manager[0]:array();
   }
@@ -129,7 +113,8 @@ class Ldap_Core {
     $bind_successful = false;
     kohana::log('debug', "Attempting: \$this->init_dn_from_username({$this->credentials['username']})");
     if($this->init_dn_from_username($this->credentials['username'])) {
-      if( ! ldap_bind($this->ds(),$this->user_dn,$this->credentials['password'])) {
+      kohana::log('debug', "ldap_bind(..., {$this->user_dn} , ...)");
+      if( ! ldap_bind($this->ds(),$this->user_dn, $this->credentials['password'])) {
         kohana::log('error',"Failed To Bind to LDAP with user DN[{$this->user_dn}].\n"
           ."LDAP error:[".ldap_error($this->ds())."]");
         $this->successfully_bound = false;
@@ -145,27 +130,30 @@ class Ldap_Core {
    * @param string $username
    */
   private function init_dn_from_username($username) {
+
+      
+
     $success = false;
     if (! $this->user_dn) {
-      kohana::log('debug',"Atempting ldap_bind(\$this->ds(), '{$this->anon_bind}', #password#)");
+      kohana::log('debug',"Atempting (anonymous) ldap_bind(\$this->ds(), '{$this->anon_bind}', #password#)");
       if( ! ldap_bind($this->ds(), $this->anon_bind, $this->anon_password)) {
         kohana::log('error',"Failed Anon Bind to LDAP using [".$this->anon_bind."]\n"
                 ."LDAP error:[".ldap_error($this->ds)."]");
       } else {
-        $this->user_dn = $this->get_dn_from_username($username);
-        $success = (bool)$this->user_dn;
+        $search = $this->ldap_search("mail=$username");
+        
+        $search_results = ldap_get_entries($this->ds(),$search);
+        
+        if($search_results['count'] != 1) {
+            $success = false;
+        } else {
+            // @TODO apply filter here
+            $this->user_dn = $search_results[0]['dn'];
+            $success = true;
+        }
       }
     }
     return $success;
-  }
-  private function get_dn_from_username($username) {
-    kohana::log('debug',"Attempting ldap_search(\$this->ds(), '{$this->base_dn}','mail={$username}');");
-    $search = ldap_search($this->ds(), $this->base_dn,"mail=$username");
-    $search_results = ldap_get_entries($this->ds(),$search);
-    if($search_results['count'] != 1) {
-      return false;
-    }
-    return $search_results[0]['dn'];
   }
 
   /**
@@ -193,7 +181,7 @@ class Ldap_Core {
   private function fetch_user_array($ldap_email, $attrbutes_to_return=array("*")) {
     $this->bind_as_user();
     $search_results = array();
-    $search = ldap_search($this->ds(),$this->base_dn,"mail=$ldap_email",$attrbutes_to_return);
+    $search = ldap_search("mail=$ldap_email",$attrbutes_to_return);
     if($search) {
       $search_results = ldap_get_entries($this->ds(),$search);
       $search_results = $this->flatten_ldap_results($search_results);
@@ -233,69 +221,20 @@ class Ldap_Core {
     }
     return $ldap_result_array;
   }
+
+  
   /**
-   *
-   * @param string $target_key only 'manager_list' at this point
-   * @param string $data
+   * centralizing the search method so we can apply consistent LDAP Injection
+   * filtering
    */
-  private function cache($target_key, $data) {
-    switch (strtolower($target_key)) {
-      case 'manager_list':
-        $_SESSION['ldap_manager_list'] = $data;
-        $_SESSION['ldap_manager_list__created'] = time();
-        break;
+  private function ldap_search($search_filter, array $attributes_to_return=null) {
+    kohana::log('debug',"Attempting ldap_search whith dn:'{$this->base_dn}' and filter:'{$search_filter}'");
+    if($attributes_to_return) {
+        return ldap_search($this->ds(),$this->base_dn,$search_filter, $attributes_to_return);
+    } else {
+        return ldap_search($this->ds(),$this->base_dn,$search_filter);
     }
+    
   }
-  /**
-   * The LDAP cache is all based on the $manager_list. The $target_key
-   * 'manager' is stored within the 'manager_list' array
-   * 
-   * @param string $target_key 'manager_list' || 'manager'
-   * @param string $manager_email If looking for 'manager, need thier email
-   * 
-   * @return mixed (null if $targer_key not found
-   */
-  private function cached($target_key, $manger_email=null) {
-    $result = null;
-//    $manager_list = isset($_SESSION['ldap_manager_list'])
-//      &&is_array($_SESSION['ldap_manager_list'])
-//        ?$_SESSION['ldap_manager_list']
-//        :null;
-//    $cache_created = isset ($_SESSION['ldap_manager_list__created'])
-//        ?($_SESSION['ldap_manager_list__created'])
-//        : 0;
-//    if($manager_list) {
-//      if(time() > $cache_created+$this->cache_ttl) { // EXPIRED
-//        $this->clear_cache('ldap_manager_list');
-//      } else {
-//        switch (strtolower($target_key)) {
-//          case 'manager_list':
-//            kohana::log('debug',"manager_list comming from SESSION");
-//            $result = $manager_list;
-//            break;
-//          case 'manager':
-//            if(isset ($manager_list[$manger_email])
-//                &&is_array($manager_list[$manger_email]) ) {
-//
-//              kohana::log('debug', "manager_attributes comming from SESSION");
-//              $result = $manager_list[$manger_email];
-//            }
-//            break;
-//        }
-//      }
-//    }
-    return $result;
-  }
-  /**
-   *
-   * @param string $target_key Only support 'manager_list' at the moment
-   */
-  private function clear_cache($target_key) {
-    switch (strtolower($target_key)) {
-      case 'manager_list':
-        unset ($_SESSION['ldap_manager_list']);
-        break;
-    }
-  }
- 
+
 }
