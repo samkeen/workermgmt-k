@@ -9,18 +9,20 @@ class Hiring_Controller extends Template_Controller {
     /**
      * No DB for this app, so these are various lookup lists needed for form
      * select list, radio groups and such
+     *
+     * *REQUIRED: the key for the list needs to be the name for the id used
+     * in the form
      * 
-     * @var array
      */
     private $select_lists = array(
-        'hire_types' => array(
+        'hire_type' => array(
             ""  => "Select ...",
             "Employee" => "Employee",
             "Intern" =>  "Intern"
         ),
         // this is retrieved from Manager_Model in actions that need it
-        'managers' => array(),
-        'locations' => array(
+        'manager' => array(),
+        'location' => array(
             ""  => "Select ...",
             "Mountain View" => "Mountain View",
             "Auckland" => "Auckland",
@@ -31,14 +33,14 @@ class Hiring_Controller extends Template_Controller {
             "Vancouver" => "Vancouver",
             "other" => "other"
         ),
-        'machine_types' => array(
+        'machine_type' => array(
             ""       => "Please select...",
             "MacBook Pro 13-inch" => "MacBook Pro 13-inch",
             "MacBook Pro 15-inch" => "MacBook Pro 15-inch",
             "Lenovo" => "Lenovo"
         ),
-        'contract_types' => array('Extension'=>'Extension','New'=>'New'),
-        'contract_categories' => array('Independent'=>'Independent','Corp to Corp'=>'Corp to Corp')
+        'contract_type' => array('Extension'=>'Extension','New'=>'New'),
+        'contract_category' => array('Independent'=>'Independent','Corp to Corp'=>'Corp to Corp')
     );
 
     /**
@@ -54,7 +56,7 @@ class Hiring_Controller extends Template_Controller {
      */
     public function employee() {
         $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['managers'] = $this->format_manager_list($manager->get_list());
+        $this->select_lists['managers'] = hiring_forms::format_manager_list($manager->get_list());
 
         $form = array(
                 'hire_type' => '',
@@ -78,7 +80,7 @@ class Hiring_Controller extends Template_Controller {
         $errors = $form;
 
         if($_POST) {
-            $this->filter_disallowed_values();
+            hiring_forms::filter_disallowed_values($this->select_lists);
             $post = new Validation($_POST);
             $post->pre_filter('trim', true);
             $post->add_rules('hire_type', 'required');
@@ -133,7 +135,7 @@ class Hiring_Controller extends Template_Controller {
      */
     public function contractor() {
         $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['managers'] = $this->format_manager_list($manager->get_list());
+        $this->select_lists['managers'] = hiring_forms::format_manager_list($manager->get_list());
         $form = array(
             'hire_type' => 'Contractor',
             'contract_type' => '',
@@ -162,7 +164,7 @@ class Hiring_Controller extends Template_Controller {
         $errors = $form;
 
         if($_POST) {
-            $this->filter_disallowed_values();
+            hiring_forms::filter_disallowed_values($this->select_lists);
             $post = new Validation($_POST);
             $post->pre_filter('trim', true);
             $post->add_rules('contract_type', 'required');
@@ -213,53 +215,7 @@ class Hiring_Controller extends Template_Controller {
         $this->template->content->form = $form;
         $this->template->content->lists = $this->select_lists;
     }
-    /**
-     * Foreach manager in array, builds their display name
-     *  depending on what info is available.
-     * 
-     * @param array $managers 
-     * @return array
-     */
-    private function format_manager_list(array $managers) {
-        foreach($managers as $manager_email => &$manager_info) {
-            $manager_info = !empty($manager_info['title'])
-                    ? "{$manager_info['cn']} - {$manager_info['title']}"
-                    : $manager_info['cn'];
-        }
-        return array(''=>'Select...')+$managers;
-    }
-    /**
-     * Since we are not DB backed, need to protect the interity of these
-     * lists here.
-     */
-    private function filter_disallowed_values() {
-        switch (strtolower(Router::$method)) {
-            case 'employee':
-                $_POST['machine_type']=isset($_POST['machine_type'])&&key_exists(trim($_POST['machine_type']), $this->select_lists['machine_types'])
-                    ? $_POST['machine_type']
-                    : null;
-                $_POST['hire_type']=isset($_POST['hire_type'])&&key_exists(trim($_POST['hire_type']), $this->select_lists['hire_types'])
-                    ? $_POST['hire_type']
-                    : null;
-                break;
-            case 'contractor':
-                $_POST['contract_type']=isset($_POST['contract_type'])&&key_exists(trim($_POST['contract_type']), $this->select_lists['contract_types'])
-                    ? $_POST['contract_type']
-                    : null;
-                $_POST['contractor_category']=isset($_POST['contractor_category'])&&key_exists(trim($_POST['contractor_category']), $this->select_lists['contract_categories'])
-                    ? $_POST['contractor_category']
-                    : null;
-                break;
-            default:
-                break;
-        }
-        $_POST['manager']=isset($_POST['manager'])&&key_exists(trim($_POST['manager']), $this->select_lists['managers'])
-                ? $_POST['manager']
-                : null;
-        $_POST['location']=isset($_POST['location'])&&key_exists(trim($_POST['location']), $this->select_lists['locations'])
-                ? $_POST['location']
-                : null;
-    }
+    
     /**
      * Submit these bug types using the validated from data
      * 

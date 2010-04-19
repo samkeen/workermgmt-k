@@ -11,7 +11,7 @@
     <tr>
       <td align="right" id="hire_type_label"><strong>Hire type:</strong></td>
       <td>
-          <?php echo form::dropdown('hire_type',$lists['hire_types'],$form['hire_type']); ?>
+          <?php echo form::dropdown('hire_type',$lists['hire_type'],$form['hire_type']); ?>
         
         <?php client::validation('hire_type'); ?>
       </td>
@@ -52,7 +52,7 @@
     <tr>
       <td align="right" id="manager_label"><strong>Manager:</strong></td>
       <td>
-          <?php echo form::dropdown('manager',$lists['managers'],$form['manager']); ?>
+          <?php echo form::dropdown('manager',$lists['manager'],$form['manager']); ?>
         <?php client::validation('manager'); ?>
       </td>
     </tr>
@@ -60,7 +60,7 @@
     <tr>
       <td align="right" id="location_label"><strong>Location:</strong></td>
       <td>
-         <?php echo form::dropdown('location',$lists['locations'],$form['location']); ?>
+         <?php echo form::dropdown('location',$lists['location'],$form['location']); ?>
         <?php client::validation('location'); ?>
       </td>
     </tr>
@@ -169,7 +169,7 @@
         <strong><label for="machine_type">Type of machine needed:</label></strong>
       </td>
       <td>
-          <?php echo form::dropdown('machine_type',$lists['machine_types'],$form['machine_type']); ?>
+          <?php echo form::dropdown('machine_type',$lists['machine_type'],$form['machine_type']); ?>
         
         <?php client::validation('machine_type'); ?>
       </td>

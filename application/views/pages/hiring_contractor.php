@@ -22,11 +22,11 @@
       </td>
     </tr>
     <tr class="">
-      <td align="right" id="contractor_category_label"><strong>Category:</strong></td>
+      <td align="right" id="contract_category_label"><strong>Category:</strong></td>
       <td>
-          <?php echo form::radio('contractor_category', 'Independent', $this->input->post('contractor_category')=='Independent'); ?>Independent
-          <?php echo form::radio('contractor_category', 'Corp to Corp', $this->input->post('contractor_category')=='Corp to Corp'); ?>Corp to Corp
-          <?php client::validation('contractor_category'); ?>
+          <?php echo form::radio('contract_category', 'Independent', $this->input->post('contract_category')=='Independent'); ?>Independent
+          <?php echo form::radio('contract_category', 'Corp to Corp', $this->input->post('contract_category')=='Corp to Corp'); ?>Corp to Corp
+          <?php client::validation('contract_category'); ?>
 
       </td>
     </tr>
@@ -110,7 +110,7 @@
     <tr>
       <td align="right" id="manager_label"><strong>Manager:</strong></td>
       <td>
-        <?php echo form::dropdown('manager',$lists['managers'],$form['manager']); ?>
+        <?php echo form::dropdown('manager',$lists['manager'],$form['manager']); ?>
         <?php client::validation('manager'); ?>
       </td>
     </tr>
@@ -118,7 +118,7 @@
     <tr>
       <td align="right" id="location_label"><strong>Location:</strong></td>
       <td>
-        <?php echo form::dropdown('location',$lists['locations'],$form['location']); ?>
+        <?php echo form::dropdown('location',$lists['location'],$form['location']); ?>
         <?php client::validation('location'); ?>
       </td>
     </tr>
