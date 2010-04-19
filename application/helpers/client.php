@@ -124,7 +124,7 @@ class client {
      */
     public static function validation($input_key) {
         if(isset(self::$validation_results[$input_key])&&!empty(self::$validation_results[$input_key])) {
-            echo("<span class=\"error\">".u::h(self::$validation_results[$input_key],false)."</span>");
+            echo("<span class=\"error\">".htmlspecialchars(self::$validation_results[$input_key], ENT_NOQUOTES, 'UTF-8')."</span>");
         }
     }
     /*

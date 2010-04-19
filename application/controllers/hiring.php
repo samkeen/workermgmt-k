@@ -255,8 +255,9 @@ class Hiring_Controller extends Template_Controller {
             array(
             'fullname'=>$fullname,
             'username'=>$username,
-            'bz_manager'=> u::arrge($manager_attributes,'bugzilla_email'),
-            'manager_name' => u::arrge($manager_attributes,'cn')
+
+            'bz_manager'=> isset($manager_attributes['bugzilla_email'])?$manager_attributes['bugzilla_email']:null,
+            'manager_name' => isset($manager_attributes['cn'])?$manager_attributes['cn']:null
             )
         );
     }

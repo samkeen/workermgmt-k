@@ -78,11 +78,10 @@ class Ldap_Core {
         ."LDAP error:[".ldap_error($this->ds)."]");
     }
     $manager_list = $this->flatten_ldap_results($manager_list);
-    // for each itme in this list, ensure that they have these keys
-    // this keeps us from having to isset
-    u::ensure_keys($manager_list, array('cn','title','mail','bugzillaemail'));
     $cleaned_list = array();
     foreach ($manager_list as $manager) {
+      // ensure keys to keep out of isset?:;
+      $manager = array_merge($manager,array('cn'=>null,'title'=>null,'mail'=>null,'bugzillaemail'=>null));
       if(! empty($manager['mail'])) {
         $bugzilla_email = !empty($manager['bugzillaemail'])
           ?$manager['bugzillaemail']

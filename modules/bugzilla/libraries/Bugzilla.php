@@ -95,10 +95,10 @@ class Bugzilla_Core {
         );
         $filing_response = array();
 
-        $fullname = u::arrge($new_hiring_input, 'fullname');
-        $username = u::arrge($new_hiring_input, 'username');
-        $bz_manager = u::arrge($new_hiring_input, 'bz_manager');
-        $manager_name = u::arrge($new_hiring_input, 'manager_name');
+        $fullname = $this->isset_else_null($new_hiring_input, 'fullname');
+        $username = $this->isset_else_null($new_hiring_input, 'username');
+        $bz_manager = $this->isset_else_null($new_hiring_input, 'bz_manager');
+        $manager_name = $this->isset_else_null($new_hiring_input, 'manager_name');
 
 
         switch ($request_type) {
@@ -106,18 +106,18 @@ class Bugzilla_Core {
                 $new_hiring_info['product'] = "mozilla.org";
                 $new_hiring_info['component'] = "Server Operations: Account Requests";
                 $new_hiring_info['summary'] = "LDAP/Zimbra Account Request - $fullname <$username@mozilla.com> ("
-                        . u::arrge($new_hiring_input,'start_date') . ")";
+                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
                 $new_hiring_info['description'] = "Name: $fullname\n" .
                         "Username: $username\n" .
-                        "Type: " . u::arrge($new_hiring_input,'hire_type') . "\n" .
+                        "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n" .
                         "Manager: " . $manager_name . "\n" .
-                        "Start date: " . u::arrge($new_hiring_input,'start_date') . "\n" .
-                        "Location: " . (u::arrge($new_hiring_input,'location') == "other"
-                        ? u::arrge($new_hiring_input,'location_other')
-                        : u::arrge($new_hiring_input,'location')) . "\n" .
-                        (u::arrge($new_hiring_input,'mail_alias') ? "\nAlias: " . u::arrge($new_hiring_input,'mail_alias') : "") .
-                        (u::arrge($new_hiring_input,'mail_lists') ? "\nMailing lists: " . u::arrge($new_hiring_input,'mail_lists') : "") .
-                        (u::arrge($new_hiring_input,'other_comments') ? "\nOther comments: " . u::arrge($new_hiring_input,'other_comments') : "");
+                        "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n" .
+                        "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
+                        ? $this->isset_else_null($new_hiring_input,'location_other')
+                        : $this->isset_else_null($new_hiring_input,'location')) . "\n" .
+                        ($this->isset_else_null($new_hiring_input,'mail_alias') ? "\nAlias: " . $this->isset_else_null($new_hiring_input,'mail_alias') : "") .
+                        ($this->isset_else_null($new_hiring_input,'mail_lists') ? "\nMailing lists: " . $this->isset_else_null($new_hiring_input,'mail_lists') : "") .
+                        ($this->isset_else_null($new_hiring_input,'other_comments') ? "\nOther comments: " . $this->isset_else_null($new_hiring_input,'other_comments') : "");
                 $new_hiring_info['ccs'][] = $bz_manager;
                 $new_hiring_info['groups'] = array(self::CODE_EMPLOYEE_HIRING_GROUP);
 
@@ -128,18 +128,18 @@ class Bugzilla_Core {
                 $new_hiring_info['product'] = "mozilla.org";
                 $new_hiring_info['component'] = "Server Operations: Desktop Issues";
                 $new_hiring_info['summary'] = "Hardware Request - $fullname ("
-                        . u::arrge($new_hiring_input,'start_date') . ")";
+                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
                 $new_hiring_info['description'] = "Name: $fullname\n"
                         . "Username: $username\n"
-                        . "Type: " . u::arrge($new_hiring_input,'hire_type') . "\n"
+                        . "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n"
                         . "Manager: " . $manager_name . "\n"
-                        . "Start date: " . u::arrge($new_hiring_input,'start_date') . "\n\n"
-                        . "Location: " . (u::arrge($new_hiring_input,'location') == "other"
-                        ? u::arrge($new_hiring_input,'location_other')
-                        : u::arrge($new_hiring_input,'location')) . "\n" .
-                        "Machine: " . u::arrge($new_hiring_input,'machine_type') . "\n"
-                        . (u::arrge($new_hiring_input,'machine_special_requests')
-                        ? "\nSpecial Requests: ". u::arrge($new_hiring_input,'machine_special_requests')
+                        . "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n\n"
+                        . "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
+                        ? $this->isset_else_null($new_hiring_input,'location_other')
+                        : $this->isset_else_null($new_hiring_input,'location')) . "\n" .
+                        "Machine: " . $this->isset_else_null($new_hiring_input,'machine_type') . "\n"
+                        . ($this->isset_else_null($new_hiring_input,'machine_special_requests')
+                        ? "\nSpecial Requests: ". $this->isset_else_null($new_hiring_input,'machine_special_requests')
                         : ""
                 );
                 $new_hiring_info['ccs'][] = $bz_manager;
@@ -153,16 +153,16 @@ class Bugzilla_Core {
                 $new_hiring_info['product'] = "Mozilla Corporation";
                 $new_hiring_info['component'] = "Facilities Management";
                 $new_hiring_info['summary'] = "New Hire Notification - $fullname ("
-                        . u::arrge($new_hiring_input,'start_date') . ")";
+                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
                 $new_hiring_info['description'] = "Name: $fullname\n"
                         . "E-mail: $username@mozilla.com\n"
-                        . "Type: " . u::arrge($new_hiring_input,'hire_type') . "\n"
+                        . "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n"
                         . "Manager: " . $manager_name . "\n"
-                        . "Start date: " . u::arrge($new_hiring_input,'start_date') . "\n\n"
-                        . (u::arrge($new_hiring_input,'location')
-                        ? "Location: " . (u::arrge($new_hiring_input,'location') == "other"
-                                ? u::arrge($new_hiring_input,'location_other')
-                                : u::arrge($new_hiring_input,'location')) . "\n"
+                        . "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n\n"
+                        . ($this->isset_else_null($new_hiring_input,'location')
+                        ? "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
+                                ? $this->isset_else_null($new_hiring_input,'location_other')
+                                : $this->isset_else_null($new_hiring_input,'location')) . "\n"
                         : ""
                 );
                 $new_hiring_info['ccs'][] = "accounting@mozilla.com";
@@ -174,7 +174,7 @@ class Bugzilla_Core {
                 break;
 
             case self::BUG_HR_CONTRACTOR:
-                $contractor_org_name = u::arrge($new_hiring_input,'org_name');
+                $contractor_org_name = $this->isset_else_null($new_hiring_input,'org_name');
 
                 $new_hiring_info['product'] = "Mozilla Corporation";
                 $new_hiring_info['component'] = "Consulting";
@@ -187,22 +187,22 @@ class Bugzilla_Core {
                         )
                         .(isset($fullname) ? ($contractor_org_name!==null ? "Contact " : "")
                                 . "Name: $fullname\n" : "")
-                        . "Address: " . u::arrge($new_hiring_input,'address') . "\n"
-                        . "Phone: " . u::arrge($new_hiring_input,'phone_number') . "\n"
-                        . "E-mail: " . u::arrge($new_hiring_input,'email_address') . "\n"
-                        . "Start of contract: " . u::arrge($new_hiring_input,'start_date') . "\n"
-                        . "End of contract: " . u::arrge($new_hiring_input,'end_date') . "\n"
-                        . "Rate of pay: " . u::arrge($new_hiring_input,'pay_rate') . "\n"
-                        . "Total payment limitation: " . u::arrge($new_hiring_input,'payment_limit') . "\n"
+                        . "Address: " . $this->isset_else_null($new_hiring_input,'address') . "\n"
+                        . "Phone: " . $this->isset_else_null($new_hiring_input,'phone_number') . "\n"
+                        . "E-mail: " . $this->isset_else_null($new_hiring_input,'email_address') . "\n"
+                        . "Start of contract: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n"
+                        . "End of contract: " . $this->isset_else_null($new_hiring_input,'end_date') . "\n"
+                        . "Rate of pay: " . $this->isset_else_null($new_hiring_input,'pay_rate') . "\n"
+                        . "Total payment limitation: " . $this->isset_else_null($new_hiring_input,'payment_limit') . "\n"
                         . "Manager: " . $manager_name . "\n"
-                        . (u::arrge($new_hiring_input,'location')
-                        ? "Location: " . (u::arrge($new_hiring_input,'location') == "other"
-                                ? u::arrge($new_hiring_input,'location_other')
-                                : u::arrge($new_hiring_input,'location')) . "\n"
+                        . ($this->isset_else_null($new_hiring_input,'location')
+                        ? "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
+                                ? $this->isset_else_null($new_hiring_input,'location_other')
+                                : $this->isset_else_null($new_hiring_input,'location')) . "\n"
                         : "")
-                        . "Type: " . u::arrge($new_hiring_input,'contract_type') . "\n"
-                        . "Category: " . u::arrge($new_hiring_input,'contractor_category') . "\n\n"
-                        . "Statement of work:\n" . u::arrge($new_hiring_input,'statement_of_work') . "\n";
+                        . "Type: " . $this->isset_else_null($new_hiring_input,'contract_type') . "\n"
+                        . "Category: " . $this->isset_else_null($new_hiring_input,'contractor_category') . "\n\n"
+                        . "Statement of work:\n" . $this->isset_else_null($new_hiring_input,'statement_of_work') . "\n";
 
                 $new_hiring_info['ccs'][] = "accounting@mozilla.com";
                 $new_hiring_info['ccs'][] = $bz_manager;
@@ -216,8 +216,8 @@ class Bugzilla_Core {
                 break;
         }
         kohana::log('debug', "\$filing_response:".print_r($filing_response,1));
-        $error_code = u::arrge($filing_response, 'faultCode');
-        $error_message = u::arrge($filing_response, 'faultString');
+        $error_code = $this->isset_else_null($filing_response, 'faultCode');
+        $error_message = $this->isset_else_null($filing_response, 'faultString');
         if($error_message) {
             $result['error_code']=$error_code;
             $result['error_message']=$error_message;
@@ -230,8 +230,8 @@ class Bugzilla_Core {
             client::messageSend($result['error_message'], E_USER_ERROR);
             url::redirect('login');
         }
-        if(u::arrge($filing_response, 'id')) {
-            $result['bug_id'] = u::arrge($filing_response, 'id');
+        if($this->isset_else_null($filing_response, 'id')) {
+            $result['bug_id'] = $this->isset_else_null($filing_response, 'id');
             $result['success_message'] = sprintf(
                     $this->bug_filing_types[$request_type]['success_message'],
                     $this->config['bugzilla_url'], $result['bug_id'], $result['bug_id']
@@ -377,6 +377,11 @@ class Bugzilla_Core {
         $method = null;
         $response = xmlrpc_decode_request($this->call($request),$method);
         return xmlrpc_decode_request($this->call($request), $request);
+    }
+    private function isset_else_null($array, $key_sought) {
+        return is_array($array) && isset ($array[$key_sought])
+            ? $array[$key_sought]
+            : null;
     }
 
 }
