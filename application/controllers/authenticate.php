@@ -2,7 +2,7 @@
 /**
  * Authentication Controller
  * 
- * Auths agains bugzilla and stores the auth cookies to be used to submit bugs
+ * Auths against bugzilla and stores the auth cookies to be used to submit bugs
  * for the various Hiring forms.
  *
  */
