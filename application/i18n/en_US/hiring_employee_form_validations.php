@@ -7,6 +7,11 @@ $lang = array(
         'required' => 'First Name is required',
         'default' => 'Invalid Input'
     ),
+
+    'hire_type' => array(
+        'required' => 'Hire Type is required',
+        'default' => 'Invalid Input'
+    ),
     'last_name' => array(
         'required' => 'Last Name is required',
         'default' => 'Invalid Input'
