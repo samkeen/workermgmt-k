@@ -6,9 +6,9 @@ $(document).ready(function(){
    * toggle the text field to fill in "other" location
    */
   $('#location').change(function() {
-    toggle_section('other_location_tr',$(this).val()=='other');
+    toggle_section('location_other',$(this).val()=='other');
   });
-  toggle_section('other_location_tr',$('#location').val()=='other');
+  toggle_section('location_other',$('#location').val()=='other');
 
   /**
    * toggle the edndate to show if HireType::Intern selected

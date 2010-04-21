@@ -1,10 +1,22 @@
 form label {
-  margin-bottom: 2px;
+  margin: 5px 0 0 0;
   display:block;
 }
-form input.submit {
-  margin: 3px 0;
+
+form input[type='checkbox'] {
+    float:left;
+    margin-right: 5px;
 }
+
+form input[type='submit'] {
+  margin: 7px 0;
+}
+
+form .section {
+    margin-left: 30px;
+}
+
+form label.required:after { content: "*"; }
 
 #notifications .negative,  #notifications .positive {
   margin-top:-9px;

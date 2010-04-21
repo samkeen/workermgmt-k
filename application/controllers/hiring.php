@@ -57,7 +57,11 @@ class Hiring_Controller extends Template_Controller {
     public function employee() {
         $manager = new Manager_Model($this->get_ldap());
         $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
-
+        /**
+         * track required fields with this array, Validator uses it and form helper
+         * uses it to determine which fields to decorate as 'required' in the UI
+         */
+        $required_fields = array('hire_type','first_name','last_name','start_date','manager','location');
         $form = array(
                 'hire_type' => '',
                 'first_name' => '',
@@ -83,22 +87,22 @@ class Hiring_Controller extends Template_Controller {
             hiring_forms::filter_disallowed_values($this->select_lists);
             $post = new Validation($_POST);
             $post->pre_filter('trim', true);
-            $post->add_rules('hire_type', 'required');
-            $post->add_rules('first_name', 'required');
-            $post->add_rules('last_name', 'required');
-            $post->add_rules('start_date', 'required', 'valid::date');
+            $post->add_rules('start_date', 'valid::date');
             $post->add_rules('end_date', 'valid::date');
             if(trim($this->input->post('hire_type'))=='Intern') {
-                $post->add_rules('end_date', 'required');
+                array_push($required_fields,'end_date');
             }
-            $post->add_rules('manager', 'required');
-            $post->add_rules('location', 'required');
             if($this->input->post('location')=='other') {
-                $post->add_rules('location_other', 'required');
+                array_push($required_fields,'location_other');
             }          
             if($this->input->post('machine_needed')=='1') {
-                $post->add_rules('machine_type', 'required');
+                array_push($required_fields,'machine_type');
             }
+            // add all the required fields
+            foreach ($required_fields as $required) {
+                $post->add_rules($required, 'required');
+            }
+            
             if ($post->validate()) {
                 // check for invilid
                 $form = arr::overwrite($form, $post->as_array());
@@ -121,13 +125,16 @@ class Hiring_Controller extends Template_Controller {
                 $form = arr::overwrite($form, $post->as_array());
                 client::validation_results(arr::overwrite($errors, $post->errors('hiring_employee_form_validations')));
                 client::messageSend("There were errors in some fields", E_USER_WARNING);
+                
             }
-        }
 
+        }
+        // the UI used client to determine which fields to decorate as 'required'
+        form::required_fields($required_fields);
         $this->template->title = 'Hiring::Employee';
         $this->template->content = new View('pages/hiring_employee');
         $this->template->content->form = $form;
-        $this->template->content->lists = $this->select_lists;
+	$this->template->content->lists = $this->select_lists;
 
     }
     /**
