@@ -1,6 +1,7 @@
 form label {
-  margin: 5px 0 0 0;
+  margin: 8px 0 0 0;
   display:block;
+  font-weight: 600;
 }
 
 form input[type='checkbox'] {

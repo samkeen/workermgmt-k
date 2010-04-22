@@ -6,17 +6,18 @@ $(document).ready(function(){
    * toggle the text field to fill in "other" location
    */
   $('#location').change(function() {
-    toggle_section('location_other',$(this).val()=='other');
+    toggle_section('location_other_section',$(this).val()=='other');
+    $('#location_other_section label').addClass('required');
   });
-  toggle_section('location_other',$('#location').val()=='other');
+  toggle_section('location_other_section',$('#location').val()=='other');
 
   /**
    * toggle the edndate to show if HireType::Intern selected
    */
   $('#hire_type').change(function() {
-    toggle_section('end_date_row',$(this).val()=='Intern');
+    toggle_section('end_date_section',$(this).val()=='Intern');
   });
-  toggle_section('end_date_row',$('#hire_type').val()=='Intern');
+  toggle_section('end_date_section',$('#hire_type').val()=='Intern');
 
   /**
    * For the two checkboxes, toggle the sections the represent

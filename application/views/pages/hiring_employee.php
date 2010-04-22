@@ -3,48 +3,45 @@
 <h2>
     <?php echo html::image('media/img/employee.png'); ?>Employee/Intern New Hire Request
 </h2>
-
+<p><strong>*</strong> denotes a required field</p>
 <form method="post" action="" id="newHireForm" accept-charset="utf-8">
 
     <?php
     echo form::auto_label('hire_type');
     echo form::dropdown('hire_type',$lists['hire_type'],$form['hire_type']);
-    client::validation('hire_type'); ?>
-
-    <?php
+    client::validation('hire_type');
+    
     echo form::auto_label('first_name');
-    echo form::input('first_name', $form['first_name'], 'size="20"'); ?>
-    <?php client::validation('first_name'); ?>
-
-    <?php
+    echo form::input('first_name', $form['first_name'], 'size="20"');
+    client::validation('first_name');
+    
     echo form::auto_label('last_name');
-    echo form::input('last_name', $form['last_name'], 'size="20"'); ?>
-    <?php client::validation('last_name'); ?>
-
-    <?php
+    echo form::input('last_name', $form['last_name'], 'size="20"');
+    client::validation('last_name');
+    
     echo form::auto_label('start_date');
-    echo form::input('start_date', $form['start_date'], 'size="10"'); ?>
-    <?php client::validation('start_date'); ?>
-
-    <?php
-    echo form::auto_label('end_date');
-    echo form::input('end_date', $form['end_date'], 'size="10"'); ?>
-    <?php client::validation('end_date'); ?>
-
-    <?php
-    echo form::auto_label('manager');
-    echo form::dropdown('manager',$lists['manager'],$form['manager']); ?>
-    <?php client::validation('manager'); ?>
-
-    <?php
+    echo form::input('start_date', $form['start_date'], 'size="10"');
+    client::validation('start_date');?>
+    
+    <div id="end_date_section">
+    <?php echo form::auto_label('end_date');
+    echo form::input('end_date', $form['end_date'], 'size="10"');
+    client::validation('end_date');?>
+    </div>
+    
+    <?php echo form::auto_label('manager');
+    echo form::dropdown('manager',$lists['manager'],$form['manager']);
+    client::validation('manager');
+    
     echo form::auto_label('location');
-    echo form::dropdown('location',$lists['location'],$form['location']); ?>
-    <?php client::validation('location'); ?>
+    echo form::dropdown('location',$lists['location'],$form['location']);
+    client::validation('location');?>
 
-    <?php
-    echo form::input('location_other', $form['location_other'], 'size="20"'); ?>
-    <?php client::validation('location_other'); ?>
-
+    <div id="location_other_section">
+    <?php echo form::auto_label('location_other','Specify other location');
+    echo form::input('location_other', $form['location_other'], 'size="20"');
+    client::validation('location_other'); ?>
+    </div>
 
     <p>
         <?php
@@ -82,7 +79,6 @@
 
     </div>
 
-
     <p>
         <?php
         echo form::checkbox('machine_needed', '1',$this->input->post('machine_needed')==1);
@@ -105,8 +101,3 @@
 
     <input type="submit" id="submit" name="submit" value="Submit Request" />
 </form>
-
-<p>Thanks for contacting us.
-    You will be notified by email of any progress made in resolving your
-    request.
-</p>
