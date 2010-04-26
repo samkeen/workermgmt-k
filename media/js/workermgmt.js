@@ -24,9 +24,11 @@ $(document).ready(function(){
    */
   $('#mail_needed').click(function() {
     toggle_section('mail_box',$(this).attr('checked'));
+    
   });
   $('#machine_needed').click(function() {
     toggle_section('machine_box',$(this).attr('checked'));
+    $("#mail_box label[for='machine_needed']").addClass('required');
   });
   toggle_section('mail_box',$('#mail_needed').attr('checked'));
   toggle_section('machine_box',$('#machine_needed').attr('checked'));
