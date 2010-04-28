@@ -98,16 +98,16 @@ class Hiring_Controller extends Template_Controller {
             if($this->input->post('machine_needed')=='1') {
                 array_push($required_fields,'machine_type');
             }
+            
             // add all the required fields
-            foreach ($required_fields as $required) {
-                $post->add_rules($required, 'required');
+            foreach ($required_fields as $required_field) {
+                $post->add_rules($required_field, 'required');
             }
             
             if ($post->validate()) {
                 // check for invilid
                 $form = arr::overwrite($form, $post->as_array());
                 $form = $this->build_supplemental_form_values($form, $manager);
-
                 $bugs_to_file = array(Bugzilla::BUG_NEWHIRE_SETUP);
                 if($form['machine_needed']) {
                     $bugs_to_file[] = Bugzilla::BUG_HARDWARE_REQUEST;
@@ -122,6 +122,7 @@ class Hiring_Controller extends Template_Controller {
                 }
 
             } else {
+                
                 $form = arr::overwrite($form, $post->as_array());
                 client::validation_results(arr::overwrite($errors, $post->errors('hiring_employee_form_validations')));
                 client::messageSend("There were errors in some fields", E_USER_WARNING);
@@ -143,12 +144,14 @@ class Hiring_Controller extends Template_Controller {
     public function contractor() {
         $manager = new Manager_Model($this->get_ldap());
         $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
+        // allow hire_type 'Contractor'
+        $this->select_lists['hire_type'] = array('Contractor'=>'Contractor');
         /**
          * track required fields with this array, Validator uses it and form helper
          * uses it to determine which fields to decorate as 'required' in the UI
          */
         $required_fields = array('contract_type', 'contractor_category', 'first_name','last_name',
-            'org_name', 'address', 'phone_number', 'email_address', 'start_date', 'end_date',
+            'address', 'phone_number', 'email_address', 'start_date', 'end_date',
             'pay_rate', 'payment_limit', 'manager','location', 'statement_of_work');
         
         $form = array(
@@ -182,31 +185,17 @@ class Hiring_Controller extends Template_Controller {
             hiring_forms::filter_disallowed_values($this->select_lists);
             $post = new Validation($_POST);
             $post->pre_filter('trim', true);
-//            $post->add_rules('contract_type', 'required');
-//            $post->add_rules('contractor_category', 'required');
-//            $post->add_rules('first_name', 'required');
-//            $post->add_rules('last_name', 'required');
-//            $post->add_rules('org_name', 'required');
-//            $post->add_rules('address', 'required');
-//            $post->add_rules('phone_number', 'required');
-//            $post->add_rules('email_address', 'required');
             $post->add_rules('start_date', 'valid::date');
             $post->add_rules('end_date', 'valid::date');
-//            $post->add_rules('pay_rate', 'required');
-//            $post->add_rules('payment_limit', 'required');
-//            $post->add_rules('manager', 'required');
             if($this->input->post('mail_needed')=='1') {
                 array_push($required_fields,'location');
-//                $post->add_rules('location', 'required');
             }
             if($this->input->post('location')=='other') {
                 array_push($required_fields,'location_other');
-//                $post->add_rules('location_other', 'required');
             }
-//            $post->add_rules('statement_of_work', 'required');
             // add all the required fields
-            foreach ($required_fields as $required) {
-                $post->add_rules($required, 'required');
+            foreach ($required_fields as $required_field) {
+                $post->add_rules($required_field, 'required');
             }
 
             if ($post->validate()) {
