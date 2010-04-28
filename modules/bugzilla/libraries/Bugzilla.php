@@ -77,7 +77,7 @@ class Bugzilla_Core {
      * @todo This still needs A LOT of work.  Need a much more elegant templated
      *  solution (samkeen)
      *
-     * @param array $new_hiring_input
+     * @param array $input
      * @return array $result
      * array(
      *  'error_code' => null,
@@ -86,7 +86,7 @@ class Bugzilla_Core {
      *  'success_message' => null
      * );
      */
-    public function newhire_filing($request_type, array $new_hiring_input) {
+    public function newhire_filing($request_type, array $input) {
         $result = array(
                 'error_code' => null,
                 'error_message' => null,
@@ -94,79 +94,83 @@ class Bugzilla_Core {
                 'success_message' => null
         );
         $filing_response = array();
-
-        $fullname = $this->isset_else_null($new_hiring_input, 'fullname');
-        $username = $this->isset_else_null($new_hiring_input, 'username');
-        $bz_manager = $this->isset_else_null($new_hiring_input, 'bz_manager');
-        $manager_name = $this->isset_else_null($new_hiring_input, 'manager_name');
-
-
+        
         switch ($request_type) {
+            
             case self::BUG_EMAIL_SETUP:
                 $new_hiring_info['product'] = "mozilla.org";
                 $new_hiring_info['component'] = "Server Operations: Account Requests";
-                $new_hiring_info['summary'] = "LDAP/Zimbra Account Request - $fullname <$username@mozilla.com> ("
-                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
-                $new_hiring_info['description'] = "Name: $fullname\n" .
-                        "Username: $username\n" .
-                        "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n" .
-                        "Manager: " . $manager_name . "\n" .
-                        "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n" .
-                        "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
-                        ? $this->isset_else_null($new_hiring_input,'location_other')
-                        : $this->isset_else_null($new_hiring_input,'location')) . "\n" .
-                        ($this->isset_else_null($new_hiring_input,'mail_alias') ? "\nAlias: " . $this->isset_else_null($new_hiring_input,'mail_alias') : "") .
-                        ($this->isset_else_null($new_hiring_input,'mail_lists') ? "\nMailing lists: " . $this->isset_else_null($new_hiring_input,'mail_lists') : "") .
-                        ($this->isset_else_null($new_hiring_input,'other_comments') ? "\nOther comments: " . $this->isset_else_null($new_hiring_input,'other_comments') : "");
-                $new_hiring_info['ccs'][] = $bz_manager;
+                $new_hiring_info['summary'] = "LDAP/Zimbra Account Request - {$input['fullname']} <{$input['username']}@mozilla.com> ("
+                        . $input['start_date'] . ")";
+                $new_hiring_info['description'] =
+                    "Name: {$input['fullname']}\n" .
+                    "Username: {$input['username']}\n" .
+                    "Type: " . $input['hire_type'] . "\n" .
+                    "Manager: {$input['manager_name']}\n" .
+                    "Start date: " . $input['start_date'] . "\n";
+                if($input['hire_type']=='Intern') {
+                    $new_hiring_info['description'] .= "End of Internship: {$input['end_date']}\n";
+                }
+                $location = $input['location'] == "other"?$input['location_other']:$input['location'];
+                $new_hiring_info['description'] .= "\nLocation: {$location}";
+                if(!empty ($input['mail_alias'])) {
+                    $new_hiring_info['description'] .= "\nAlias: {$input['mail_alias']}";
+                }
+                if(!empty ($input['mail_lists'])) {
+                    $new_hiring_info['description'] .= "\nMailing lists: {$input['mail_lists']}";
+                }
+                if(!empty ($input['other_comments'])) {
+                    $new_hiring_info['description'] .= "\nOther comments: {$input['other_comments']}";
+                }
+                $new_hiring_info['ccs'][] = $input['bz_manager'];
                 $new_hiring_info['groups'] = array(self::CODE_EMPLOYEE_HIRING_GROUP);
 
                 $filing_response = $this->file_bug($new_hiring_info);
-
                 break;
+
             case self::BUG_HARDWARE_REQUEST:
                 $new_hiring_info['product'] = "mozilla.org";
                 $new_hiring_info['component'] = "Server Operations: Desktop Issues";
-                $new_hiring_info['summary'] = "Hardware Request - $fullname ("
-                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
-                $new_hiring_info['description'] = "Name: $fullname\n"
-                        . "Username: $username\n"
-                        . "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n"
-                        . "Manager: " . $manager_name . "\n"
-                        . "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n\n"
-                        . "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
-                        ? $this->isset_else_null($new_hiring_input,'location_other')
-                        : $this->isset_else_null($new_hiring_input,'location')) . "\n" .
-                        "Machine: " . $this->isset_else_null($new_hiring_input,'machine_type') . "\n"
-                        . ($this->isset_else_null($new_hiring_input,'machine_special_requests')
-                        ? "\nSpecial Requests: ". $this->isset_else_null($new_hiring_input,'machine_special_requests')
-                        : ""
-                );
-                $new_hiring_info['ccs'][] = $bz_manager;
+                $new_hiring_info['summary'] = "Hardware Request - {$input['fullname']} ({$input['start_date']})";
+                $new_hiring_info['description'] = "Name: {$input['fullname']}\n"
+                    . "Username: {$input['username']}\n"
+                    . "Type: {$input['hire_type']}\n"
+                    . "Manager: {$input['manager_name']}\n"
+                    . "Start date: {$input['start_date']}\n";
+                if($input['hire_type']=='Intern') {
+                    $new_hiring_info['description'] .= "End of Internship: {$input['end_date']}\n";
+                }
+                $location = $input['location'] == "other"?$input['location_other']:$input['location'];
+                $new_hiring_info['description'] .= "\nLocation: {$location}\n"
+                    ."Machine: " . $input['machine_type'] . "\n";
+                if(!empty ($input['machine_special_requests'])) {
+                    $new_hiring_info['description'] .= "\nSpecial Requests: {$input['machine_special_requests']}";
+                }
+                
+                $new_hiring_info['ccs'][] = $input['bz_manager'];
                 $new_hiring_info['groups'] = array(self::CODE_EMPLOYEE_HIRING_GROUP);
 
                 $filing_response = $this->file_bug($new_hiring_info);
-
                 break;
+
             case self::BUG_NEWHIRE_SETUP:
 
                 $new_hiring_info['product'] = "Mozilla Corporation";
                 $new_hiring_info['component'] = "Facilities Management";
-                $new_hiring_info['summary'] = "New Hire Notification - $fullname ("
-                        . $this->isset_else_null($new_hiring_input,'start_date') . ")";
-                $new_hiring_info['description'] = "Name: $fullname\n"
-                        . "E-mail: $username@mozilla.com\n"
-                        . "Type: " . $this->isset_else_null($new_hiring_input,'hire_type') . "\n"
-                        . "Manager: " . $manager_name . "\n"
-                        . "Start date: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n\n"
-                        . ($this->isset_else_null($new_hiring_input,'location')
-                        ? "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
-                                ? $this->isset_else_null($new_hiring_input,'location_other')
-                                : $this->isset_else_null($new_hiring_input,'location')) . "\n"
-                        : ""
-                );
+                $new_hiring_info['summary'] = "New Hire Notification - {$input['fullname']} ({$input['start_date']})";
+                $new_hiring_info['description'] = "Name: {$input['fullname']}\n"
+                    . "E-mail: {$input['username']}@mozilla.com\n"
+                    . "Type: {$input['hire_type']}\n"
+                    . "Manager: {$input['manager_name']}\n"
+                    . "Start date: {$input['start_date']}\n";
+                if($input['hire_type']=='Intern') {
+                    $new_hiring_info['description'] .= "End of Internship: {$input['end_date']}\n";
+                }
+                $location = $input['location'] == "other"?$input['location_other']:$input['location'];
+                $new_hiring_info['description'] .= "\nLocation: {$location}\n";
+                
                 $new_hiring_info['ccs'][] = "accounting@mozilla.com";
-                $new_hiring_info['ccs'][] = $bz_manager;
+                $new_hiring_info['ccs'][] = $input['bz_manager'];
                 $new_hiring_info['groups'] = array(self::CODE_EMPLOYEE_HIRING_GROUP);
 
                 $filing_response = $this->file_bug($new_hiring_info);
@@ -174,38 +178,32 @@ class Bugzilla_Core {
                 break;
 
             case self::BUG_HR_CONTRACTOR:
-                $contractor_org_name = $this->isset_else_null($new_hiring_input,'org_name');
-
                 $new_hiring_info['product'] = "Mozilla Corporation";
                 $new_hiring_info['component'] = "Consulting";
-                $new_hiring_info['summary'] = "Contractor Request - "
-                        . ($contractor_org_name!==null ? $contractor_org_name : $fullname)
-                        . " (" . $_POST['start_date'] . ")";
-                $new_hiring_info['description'] = ($contractor_org_name!==null
-                        ? "Organization Name: $contractor_org_name\n"
-                        : ""
-                        )
-                        .(isset($fullname) ? ($contractor_org_name!==null ? "Contact " : "")
-                                . "Name: $fullname\n" : "")
-                        . "Address: " . $this->isset_else_null($new_hiring_input,'address') . "\n"
-                        . "Phone: " . $this->isset_else_null($new_hiring_input,'phone_number') . "\n"
-                        . "E-mail: " . $this->isset_else_null($new_hiring_input,'email_address') . "\n"
-                        . "Start of contract: " . $this->isset_else_null($new_hiring_input,'start_date') . "\n"
-                        . "End of contract: " . $this->isset_else_null($new_hiring_input,'end_date') . "\n"
-                        . "Rate of pay: " . $this->isset_else_null($new_hiring_input,'pay_rate') . "\n"
-                        . "Total payment limitation: " . $this->isset_else_null($new_hiring_input,'payment_limit') . "\n"
-                        . "Manager: " . $manager_name . "\n"
-                        . ($this->isset_else_null($new_hiring_input,'location')
-                        ? "Location: " . ($this->isset_else_null($new_hiring_input,'location') == "other"
-                                ? $this->isset_else_null($new_hiring_input,'location_other')
-                                : $this->isset_else_null($new_hiring_input,'location')) . "\n"
-                        : "")
-                        . "Type: " . $this->isset_else_null($new_hiring_input,'contract_type') . "\n"
-                        . "Category: " . $this->isset_else_null($new_hiring_input,'contractor_category') . "\n\n"
-                        . "Statement of work:\n" . $this->isset_else_null($new_hiring_input,'statement_of_work') . "\n";
+                $summary_2nd_half = ($input['org_name']!==null ? $input['org_name'] : $input['fullname']);
+                $new_hiring_info['summary'] = "Contractor Request - {$summary_2nd_half} ({$input['start_date']})";
+                $org_string = $input['org_name']!==null ? "Organization Name: {$input['org_name']}\n":"";
+                $new_hiring_info['description'] = $org_string;
+                $contact_string = !empty($input['org_name'])
+                    ? "Contact: {$input['fullname']}\n"
+                    : "Name: {$input['fullname']}\n";
+                $new_hiring_info['description'] .= $contact_string
+                    . "Address: " . $input['address'] . "\n"
+                    . "Phone: " . $input['phone_number'] . "\n"
+                    . "E-mail: " . $input['email_address'] . "\n"
+                    . "Start of contract: " . $input['start_date'] . "\n"
+                    . "End of contract: " . $input['end_date'] . "\n"
+                    . "Rate of pay: " . $input['pay_rate'] . "\n"
+                    . "Total payment limitation: " . $input['payment_limit'] . "\n"
+                    . "Manager: {$input['manager_name']}\n";
+                $location = $input['location'] == "other"?$input['location_other']:$input['location'];
+                $new_hiring_info['description'] .= "\nLocation: {$location}\n"
+                    . "Type: " . $input['contract_type'] . "\n"
+                    . "Category: " . $input['contractor_category'] . "\n\n"
+                    . "Statement of work:\n" . $input['statement_of_work'] . "\n";
 
                 $new_hiring_info['ccs'][] = "accounting@mozilla.com";
-                $new_hiring_info['ccs'][] = $bz_manager;
+                $new_hiring_info['ccs'][] = $input['bz_manager'];
                 $new_hiring_info['groups'] = array(self::CODE_CONTRACTOR_HIRING_GROUP);
 
                 $filing_response = $this->file_bug($new_hiring_info);
@@ -216,8 +214,8 @@ class Bugzilla_Core {
                 break;
         }
         kohana::log('debug', "\$filing_response:".print_r($filing_response,1));
-        $error_code = $this->isset_else_null($filing_response, 'faultCode');
-        $error_message = $this->isset_else_null($filing_response, 'faultString');
+        $error_code = isset($filing_response['faultCode'])?$filing_response['faultCode']:null;
+        $error_message = isset($filing_response['faultString'])?$filing_response['faultString']:null;
         if($error_message) {
             $result['error_code']=$error_code;
             $result['error_message']=$error_message;
@@ -230,8 +228,8 @@ class Bugzilla_Core {
             client::messageSend($result['error_message'], E_USER_ERROR);
             url::redirect('login');
         }
-        if($this->isset_else_null($filing_response, 'id')) {
-            $result['bug_id'] = $this->isset_else_null($filing_response, 'id');
+        if(isset($filing_response['id'])) {
+            $result['bug_id'] = isset($filing_response['id'])?$filing_response['id']:null;
             $result['success_message'] = sprintf(
                     $this->bug_filing_types[$request_type]['success_message'],
                     $this->config['bugzilla_url'], $result['bug_id'], $result['bug_id']
@@ -340,48 +338,45 @@ class Bugzilla_Core {
      *  )
      */
     private function file_bug($bug_meta) {
+        // ensure these keys
         $bug_meta = array_merge(
-                array(
+            array(
                 'product'=>null,
                 'component'=>null,
                 'summary'=>null,
+                'groups'=>null,
                 'description'=>null,
                 'ccs'=>null,
-                'groups'=>null,
-                ),
-                array_change_key_case($bug_meta)
+            ),
+            array_change_key_case($bug_meta)
         );
 
         kohana::log('debug',"Starting [".__METHOD__."] with \$bug_meta = "
                 .print_r($bug_meta,1));
 
         $request = xmlrpc_encode_request(
-                "Bug.create",
-                array(
+            "Bug.create",
+            array(
                 'product' => $bug_meta['product'],
                 'component' => $bug_meta['component'],
                 'summary' => $bug_meta['summary'],
+                'groups' => $bug_meta['groups'],
+                'description' => $bug_meta['description'],
+                'cc' => $bug_meta['ccs'],
+
                 'version' => 'other',
                 'platform' => 'All',
                 'op_sys' => 'Other',
                 'severity' => 'normal',
-                'groups' => $bug_meta['groups'],
-                'description' => $bug_meta['description'],
-                'cc' => $bug_meta['ccs']
-                ),
-                array(
+            ),
+            array(
                 'escaping' => array('markup'),
                 'encoding' => 'utf-8'
-                )
+            )
         );
         $method = null;
         $response = xmlrpc_decode_request($this->call($request),$method);
         return xmlrpc_decode_request($this->call($request), $request);
-    }
-    private function isset_else_null($array, $key_sought) {
-        return is_array($array) && isset ($array[$key_sought])
-            ? $array[$key_sought]
-            : null;
     }
 
 }
