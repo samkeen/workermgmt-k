@@ -43,7 +43,7 @@ class hiring_forms {
     public static function filter_disallowed_values($select_lists) {
         foreach ($select_lists as $post_key => $select_list) {
             $submitted_value = isset($_POST[$post_key]) ? trim($_POST[$post_key]) : null;
-            $_POST[$post_key]= key_exists($post_key, $select_lists) && in_array($submitted_value, $select_lists[$post_key])
+            $_POST[$post_key]= key_exists($post_key, $select_lists) && key_exists($submitted_value, $select_lists[$post_key])
                 ? $submitted_value
                 : null;
         }
