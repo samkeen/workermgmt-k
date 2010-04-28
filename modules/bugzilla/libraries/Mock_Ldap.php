@@ -76,7 +76,7 @@ class Mock_Ldap_Core extends Ldap_Core {
     kohana::log('debug',"Called MOCK ".__METHOD__);
     return json_decode($this->manager_list, true);
   }
-  public function manager_attributes($ldap_email) {
+  public function employee_attributes($ldap_email) {
     kohana::log('debug',"Called MOCK ".__METHOD__);
     $manager_list = json_decode($this->manager_list, true);
     return isset($manager_list[$ldap_email])

@@ -22,6 +22,7 @@ class Hiring_Controller extends Template_Controller {
         ),
         // this is retrieved from Manager_Model in actions that need it
         'manager' => array(),
+        'buddy' => array(),
         'location' => array(
             ""  => "Select ...",
             "Mountain View" => "Mountain View",
@@ -55,8 +56,9 @@ class Hiring_Controller extends Template_Controller {
      * Form for hiring Employee and Interns
      */
     public function employee() {
-        $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
+        $hiring = new Hiring_Model($this->get_ldap());
+        $this->select_lists['manager'] = hiring_forms::format_manager_list($hiring->manager_list());
+        $this->select_lists['buddy'] = hiring_forms::format_manager_list($hiring->buddy_list());
         /**
          * track required fields with this array, Validator uses it and form helper
          * uses it to determine which fields to decorate as 'required' in the UI
@@ -97,8 +99,7 @@ class Hiring_Controller extends Template_Controller {
             }          
             if($this->input->post('machine_needed')=='1') {
                 array_push($required_fields,'machine_type');
-            }
-            
+            }         
             // add all the required fields
             foreach ($required_fields as $required_field) {
                 $post->add_rules($required_field, 'required');
@@ -107,7 +108,7 @@ class Hiring_Controller extends Template_Controller {
             if ($post->validate()) {
                 // check for invilid
                 $form = arr::overwrite($form, $post->as_array());
-                $form = $this->build_supplemental_form_values($form, $manager);
+                $form = $this->build_supplemental_form_values($form, $hiring);
                 $bugs_to_file = array(Bugzilla::BUG_NEWHIRE_SETUP);
                 if($form['machine_needed']) {
                     $bugs_to_file[] = Bugzilla::BUG_HARDWARE_REQUEST;
@@ -120,9 +121,8 @@ class Hiring_Controller extends Template_Controller {
                 if( ! client::has_errors()) {
                     url::redirect('hiring/employee');
                 }
-
-            } else {
                 
+            } else {
                 $form = arr::overwrite($form, $post->as_array());
                 client::validation_results(arr::overwrite($errors, $post->errors('hiring_employee_form_validations')));
                 client::messageSend("There were errors in some fields", E_USER_WARNING);
@@ -136,14 +136,13 @@ class Hiring_Controller extends Template_Controller {
         $this->template->content = new View('pages/hiring_employee');
         $this->template->content->form = $form;
 	$this->template->content->lists = $this->select_lists;
-
     }
     /**
      * Form for submitting Contractor hirings
      */
     public function contractor() {
-        $manager = new Manager_Model($this->get_ldap());
-        $this->select_lists['manager'] = hiring_forms::format_manager_list($manager->get_list());
+        $hiring = new Hiring_Model($this->get_ldap());
+        $this->select_lists['manager'] = hiring_forms::format_manager_list($hiring->manager_list());
         // allow hire_type 'Contractor'
         $this->select_lists['hire_type'] = array('Contractor'=>'Contractor');
         /**
@@ -201,7 +200,7 @@ class Hiring_Controller extends Template_Controller {
             if ($post->validate()) {
                 // check for invilid
                 $form = arr::overwrite($form, $post->as_array());
-                $form = $this->build_supplemental_form_values($form, $manager);
+                $form = $this->build_supplemental_form_values($form, $hiring);
 
                 $bugs_to_file = array(Bugzilla::BUG_NEWHIRE_SETUP, Bugzilla::BUG_HR_CONTRACTOR);
                 if($form['mail_needed']) {
@@ -250,27 +249,28 @@ class Hiring_Controller extends Template_Controller {
      * Build needed additional fields for bugzilla submission
      * 
      * @param array $form The validated from input
-     * @param Manager_Model $manager
+     * @param Manager_Model $hiring
      * @return $form array with additional values
      */
-    private function build_supplemental_form_values(array $form, Manager_Model $manager) {
+    private function build_supplemental_form_values(array $form, Hiring_Model $hiring) {
         $first_name = iconv('UTF-8', 'ASCII//TRANSLIT', $form['first_name']);
         $first_initial = iconv('UTF-8', 'ASCII//TRANSLIT', $first_name{0});
         $last_name = iconv('UTF-8', 'ASCII//TRANSLIT', $form['last_name']);
-        $username = strtolower($first_initial.$last_name);
-        $fullname = $first_name . " " . $last_name;
-
-        $manager_attributes = $manager->get_attributes($form['manager']);
-
-        return array_merge(
-            $form,
-            array(
-            'fullname'=>$fullname,
-            'username'=>$username,
-
-            'bz_manager'=> isset($manager_attributes['bugzilla_email'])?$manager_attributes['bugzilla_email']:null,
-            'manager_name' => isset($manager_attributes['cn'])?$manager_attributes['cn']:null
-            )
-        );
+        // build the display user name components
+        $additions['fullname']=$first_name . " " . $last_name;
+        $additions['username']=strtolower($first_initial.$last_name);
+        // build the display manager name parts
+        $manager_attributes = $hiring->employee_attributes($form['manager']);
+        $additions['bz_manager']=isset($manager_attributes['bugzilla_email'])?$manager_attributes['bugzilla_email']:null;
+        $additions['manager_name']=isset($manager_attributes['cn'])?$manager_attributes['cn']:null;
+        // build the buddy name display parts (if buddy was submitted)
+        $additions['buddy_name'] = '';
+        if(!empty($form['buddy'])) {
+            $buddy_attributes = $hiring->employee_attributes($form['buddy']);
+            $additions['buddy_name'] = isset($buddy_attributes['cn'])?$buddy_attributes['cn']:null;
+        }
+        // merge the addtions w/ the current submitted form elements
+        return array_merge($form,$additions);
+       
     }
 }

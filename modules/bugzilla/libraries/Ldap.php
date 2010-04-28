@@ -54,13 +54,22 @@ class Ldap_Core {
      *  , ...
      * )
      */
-    public function manager_list() {
+    public function employee_list($type='all') {
         $this->bind_as_user();
         $manager_list = null;
-        $search_filter = '(&(objectClass=mozComPerson)(isManager=TRUE)(!(employeetype=DISABLED)))';
+        $search_filter = null;
+        switch (strtolower($type)) {
+            case 'manager':
+                $search_filter = '(&(objectClass=mozComPerson)(isManager=TRUE)(!(employeetype=DISABLED)))';
+                break;
+            case 'all':
+            default:
+                $search_filter = '(&(objectClass=mozComPerson)(!(employeetype=DISABLED)))';
+                break;
+        }
         $manager_search = $this->ldap_search(
-                $search_filter,
-                array("mail","employeetype","bugzillaEmail","cn","title")
+            $search_filter,
+            array("mail","employeetype","bugzillaEmail","cn","title")
         );
 
         if($manager_search) {
@@ -68,8 +77,8 @@ class Ldap_Core {
             $manager_list = ldap_get_entries($this->ds(), $manager_search);
         } else {
             kohana::log('error',"LDAP search failed using [{$this->ds()}, {$this->base_dn}, "
-                    ."{$search_filter}]"
-                    ."LDAP error:[".ldap_error($this->ds)."]");
+                ."{$search_filter}]"
+                ."LDAP error:[".ldap_error($this->ds)."]");
         }
         $manager_list = $this->flatten_ldap_results($manager_list);
 
@@ -96,7 +105,7 @@ class Ldap_Core {
      * @param string $ldap_email
      * @return array
      */
-    public function manager_attributes($ldap_email) {
+    public function employee_attributes($ldap_email) {
         $manager = null;
         $manager = $this->fetch_user_array($ldap_email, array("mail","employeetype","bugzillaEmail","cn","title"));
         return isset($manager[0])?$manager[0]:array();
@@ -178,7 +187,7 @@ class Ldap_Core {
     private function fetch_user_array($ldap_email, $attrbutes_to_return=array("*")) {
         $this->bind_as_user();
         $search_results = array();
-        $search = ldap_search("mail=$ldap_email",$attrbutes_to_return);
+        $search = $this->ldap_search("mail=$ldap_email",$attrbutes_to_return);
         if($search) {
             $search_results = ldap_get_entries($this->ds(),$search);
             $search_results = $this->flatten_ldap_results($search_results);

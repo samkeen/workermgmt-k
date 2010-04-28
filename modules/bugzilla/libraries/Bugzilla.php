@@ -58,18 +58,18 @@ class Bugzilla_Core {
      * an array element here.  Then add a case: in $this::newhire_filing()
      */
     private $bug_filing_types = array(
-            self::BUG_HR_CONTRACTOR => array(
-                            "success_message" => 'Human Resources notification -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
-            ),
-            self::BUG_NEWHIRE_SETUP => array(
-                            "success_message" => 'Karen/Accounting notification -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
-            ),
-            self::BUG_EMAIL_SETUP => array(
-                            "success_message" => 'Mail account request -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
-            ),
-            self::BUG_HARDWARE_REQUEST => array(
-                            "success_message" => 'Hardware request -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
-            )
+        self::BUG_HR_CONTRACTOR => array(
+            "success_message" => 'Human Resources notification -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
+        ),
+        self::BUG_NEWHIRE_SETUP => array(
+            "success_message" => 'Karen/Accounting notification -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
+        ),
+        self::BUG_EMAIL_SETUP => array(
+            "success_message" => 'Mail account request -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
+        ),
+        self::BUG_HARDWARE_REQUEST => array(
+            "success_message" => 'Hardware request -- <a href="%s/show_bug.cgi?id=%d" target="_blank">bug %d</a>'
+        )
     );
 
     /**
@@ -88,10 +88,10 @@ class Bugzilla_Core {
      */
     public function newhire_filing($request_type, array $input) {
         $result = array(
-                'error_code' => null,
-                'error_message' => null,
-                'bug_id' => null,
-                'success_message' => null
+            'error_code' => null,
+            'error_message' => null,
+            'bug_id' => null,
+            'success_message' => null
         );
         $filing_response = array();
         
@@ -161,7 +161,8 @@ class Bugzilla_Core {
                 $new_hiring_info['description'] = "Name: {$input['fullname']}\n"
                     . "E-mail: {$input['username']}@mozilla.com\n"
                     . "Type: {$input['hire_type']}\n"
-                    . "Manager: {$input['manager_name']}\n"
+                    . "Manager: {$input['manager_name']} ({$input['manager']})\n"
+                    . "Buddy: {$input['buddy_name']} ({$input['buddy']})\n"
                     . "Start date: {$input['start_date']}\n";
                 if($input['hire_type']=='Intern') {
                     $new_hiring_info['description'] .= "End of Internship: {$input['end_date']}\n";
