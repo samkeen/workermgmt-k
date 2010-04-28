@@ -6,11 +6,12 @@
 <p><strong>*</strong> denotes a required field</p>
 <form method="post" action="" id="newHireForm" accept-charset="utf-8">
 
-
     <?php
+    echo form::hidden('hire_type','Contractor');
+
     echo form::auto_label('contract_type','New/Extension');
     echo form::radio('contract_type', 'New', $this->input->post('contract_type')=='New');?>New contract
-    <?php echo form::radio('contract_type', 'Extention', $this->input->post('contract_type')=='Extention'); ?>Extension of existing contract
+    <?php echo form::radio('contract_type', 'Extension', $this->input->post('contract_type')=='Extension'); ?>Extension of existing contract
     <?php client::validation('contract_type'); ?>
 
     <?php
@@ -82,11 +83,10 @@
 
     <p>
         <?php
-        echo form::checkbox('machine_needed', '1',$this->input->post('machine_needed')==1);
-        echo form::auto_label('machine_needed','Will this user need a machine?');
+        echo form::checkbox('mail_needed', '1',$this->input->post('mail_needed')==1);
+        echo form::auto_label('mail_needed','Will this user need a mail account?');
         ?>
     </p>
-
 
     <div id="mail_box" class="section" style="display: none;">
         <p><i>User accounts are created in the form of &lt;first letter of first
