@@ -43,9 +43,43 @@ $(document).ready(function(){
     update_default_username_display();
   });
 
-  
+  select_to_autocomplete('manager',{extra_attribs: 'size="60"'});
+  select_to_autocomplete('buddy',{extra_attribs: 'size="60"'});
 
 });
+
+function select_to_autocomplete(element_id, config) {
+  element_id = element_id.replace(/^#/,'');
+  var jq_element_id = '#'+element_id;
+  if($(jq_element_id).length>0) {
+    // set config defaults
+    config.ignore_first = config.ignore_first == undefined ? true : config.ignore_first;
+    config.extra_attribs = config.extra_attribs == undefined ? '' : config.extra_attribs;
+
+    var list_items = new Array();
+    // replace the select with a text box
+    $(jq_element_id).hide();
+    $(jq_element_id).before('<input type="text" id="'+element_id+'_autocomplete" '+config.extra_attribs+' />');
+    // set the value of the replacent input element to the selection in original
+    if(config.ignore_first&&$(jq_element_id+' :selected').index()==0) {
+        $(jq_element_id+'_autocomplete').val('');
+    } else {
+        $(jq_element_id+'_autocomplete').val($(jq_element_id+' :selected').text()+' ('+$(jq_element_id+' :selected').val()+')');
+    }
+    // read all the select options into an array
+    $(jq_element_id+" option").each(function(index) {
+        list_items.push($(this).text()+' ('+$(this).val()+')');
+    });
+    if(config.ignore_first) {list_items[0]='';}
+    $(jq_element_id+'_autocomplete').autocomplete(
+        list_items,{matchContains: true}
+    ).result(function(event, data, formatted) {
+        var match = formatted?formatted.match(/\((.*)\)$/):null;
+        $(jq_element_id).val(match[1]);
+        return false;
+    });
+  }
+}
 
 function toggle_section(section_id, change_to_show) {
   if(change_to_show) {

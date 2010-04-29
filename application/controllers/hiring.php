@@ -132,6 +132,8 @@ class Hiring_Controller extends Template_Controller {
         }
         // the UI used client to determine which fields to decorate as 'required'
         form::required_fields($required_fields);
+        $this->template->js_extra = html::script(array('media/js/jquery.autocomplete.min.js'),false);
+        $this->template->css_extra = html::stylesheet(array('media/css/jquery.autocomplete.css'),array('screen'));
         $this->template->title = 'Hiring::Employee';
         $this->template->content = new View('pages/hiring_employee');
         $this->template->content->form = $form;
@@ -221,6 +223,9 @@ class Hiring_Controller extends Template_Controller {
         }
         // the UI used client to determine which fields to decorate as 'required'
         form::required_fields($required_fields);
+        $this->template->js_extra = html::script(array('media/js/jquery.autocomplete.min.js'),false);
+        $this->template->css_extra = html::stylesheet(array('media/css/jquery.autocomplete.css'),array('screen'));
+
         $this->template->title = 'Hiring::Contractor';
         $this->template->content = new View('pages/hiring_contractor');
         $this->template->content->form = $form;

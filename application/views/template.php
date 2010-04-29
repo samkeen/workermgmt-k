@@ -7,19 +7,14 @@
             'http://bugzilla.mozilla.org/skins/standard/global.css',
             'http://bugzilla.mozilla.org/skins/custom/global.css',
             'media/css/main',
-            'media/css/redmond/jquery-ui-1.7.2.custom.css'
+            'media/css/redmond/jquery-ui-1.7.2.custom.css',
             )
             ,array('screen','screen','screen','screen'));
         ?>
+        <?php echo isset($css_extra)?$css_extra:''; ?>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
         <link rel="Top" href="https://bugzilla.mozilla.org/" />
-        <?php echo html::script(array(
-            'media/js/jquery-1.4.2.min.js',
-            'media/js/jquery-ui-1.7.2.custom.min.js',
-            'media/js/workermgmt.js',
-            )
-            ,array('screen','screen','screen','screen'));
-        ?>
+        
     </head>
     <body>
         <div id="container">
@@ -31,5 +26,13 @@
             <?php echo $content ?>
 
         </div>
+        <?php echo html::script(array(
+            'media/js/jquery-1.4.2.min.js',
+            'media/js/jquery-ui-1.7.2.custom.min.js',
+            'media/js/workermgmt.js'
+            )
+            ,false);
+        ?>
+        <?php echo isset($js_extra)?$js_extra:''; ?>
     </body>
 </html>
