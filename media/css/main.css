@@ -19,6 +19,10 @@ form .section {
 
 form label.required:after { content: "*"; }
 
+.ac_input {
+    font-size: 95%;
+}
+
 #notifications .negative,  #notifications .positive {
   margin-top:-9px;
   font-weight: bold;
