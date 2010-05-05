@@ -66,6 +66,10 @@
     echo form::dropdown('manager',$lists['manager'],$form['manager']);
     client::validation('manager');
 
+    echo form::auto_label('buddy');
+    echo form::dropdown('buddy',$lists['buddy'],$form['buddy']);
+    client::validation('buddy');
+
     echo form::auto_label('location');
     echo form::dropdown('location',$lists['location'],$form['location']);
     client::validation('location');?>

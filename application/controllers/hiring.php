@@ -63,7 +63,8 @@ class Hiring_Controller extends Template_Controller {
          * track required fields with this array, Validator uses it and form helper
          * uses it to determine which fields to decorate as 'required' in the UI
          */
-        $required_fields = array('hire_type','first_name','last_name','start_date','manager','location');
+        $required_fields = array('hire_type','first_name','last_name','start_date'
+                                 ,'manager','buddy','location');
         $form = array(
                 'hire_type' => '',
                 'first_name' => '',
@@ -117,6 +118,8 @@ class Hiring_Controller extends Template_Controller {
                     $bugs_to_file[] = Bugzilla::BUG_EMAIL_SETUP;
                 }
                 $this->file_these($bugs_to_file, $form);
+                // Send Buddy Email
+                
 
                 if( ! client::has_errors()) {
                     url::redirect('hiring/employee');
@@ -126,7 +129,6 @@ class Hiring_Controller extends Template_Controller {
                 $form = arr::overwrite($form, $post->as_array());
                 client::validation_results(arr::overwrite($errors, $post->errors('hiring_employee_form_validations')));
                 client::messageSend("There were errors in some fields", E_USER_WARNING);
-                
             }
 
         }
@@ -145,7 +147,8 @@ class Hiring_Controller extends Template_Controller {
     public function contractor() {
         $hiring = new Hiring_Model($this->get_ldap());
         $this->select_lists['manager'] = hiring_forms::format_manager_list($hiring->manager_list());
-        // allow hire_type 'Contractor'
+        $this->select_lists['buddy'] = hiring_forms::format_manager_list($hiring->buddy_list());
+        // allow only hire_type = 'Contractor'
         $this->select_lists['hire_type'] = array('Contractor'=>'Contractor');
         /**
          * track required fields with this array, Validator uses it and form helper
@@ -170,6 +173,7 @@ class Hiring_Controller extends Template_Controller {
             'pay_rate'  => '',
             'payment_limit'  => '',
             'manager' => '',
+            'buddy' => '',
             'location' => '',
             'location_other' => '',
             'statement_of_work' => '',

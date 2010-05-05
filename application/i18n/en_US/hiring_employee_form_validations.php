@@ -28,6 +28,10 @@ $lang = array(
         'required' => 'Manager is required',
         'default' => 'Invalid Input'
     ),
+    'buddy' => array(
+        'required' => 'Buddy is required',
+        'default' => 'Invalid Input'
+    ),
     'location' => array(
         'required' => 'Location is required',
         'default' => 'Invalid Input'

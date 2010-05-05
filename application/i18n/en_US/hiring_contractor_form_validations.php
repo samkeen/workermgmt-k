@@ -23,7 +23,10 @@ $lang = array(
         'required' => 'Manager is required',
         'default' => 'Invalid Input'
     ),
-
+    'buddy' => array(
+        'required' => 'Buddy is required',
+        'default' => 'Invalid Input'
+    ),
     'contract_type' => array(
         'required' => 'Contract Type is required',
         'default' => 'Invalid Input'
