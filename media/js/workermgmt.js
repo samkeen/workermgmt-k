@@ -71,13 +71,18 @@ function select_to_autocomplete(element_id, config) {
         list_items.push($(this).text()+' ('+$(this).val()+')');
     });
     if(config.ignore_first) {list_items[0]='';}
+    // attach the autocomplete to the textbox
     $(jq_element_id+'_autocomplete').autocomplete(
         list_items,{matchContains: true}
     ).result(function(event, data, formatted) {
         var match = formatted?formatted.match(/\((.*)\)$/):null;
-        $(jq_element_id).val(match[1]);
+        $(jq_element_id).val(match ? match[1] : null);
         return false;
+    // on blur, invoke search again incase there were edits
+    }).blur(function(){
+        $(this).search();
     });
+    
   }
 }
 
