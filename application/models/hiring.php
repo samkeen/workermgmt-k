@@ -53,9 +53,10 @@ class Hiring_Model {
       if(filter_var($email_info['from_address'], FILTER_VALIDATE_EMAIL)
          && filter_var($email_info['buddy_email'], FILTER_VALIDATE_EMAIL)) {
 
-        // replace elements in email template
+        // replace elements in email template and subject line
         foreach ($email_info as $placeholder_key => $value) {
           $email_template = str_replace("%{$placeholder_key}%", $value, $email_template);
+          $email_info['subject'] = str_replace("%{$placeholder_key}%", $value, $email_info['subject']);
         }
          $from = !empty ($email_info['from_label']) ? "\"{$email_info['from_label']}\" <{$email_info['from_address']}>" : $email_info['from_address'];
          $mail_sent = mail($email_info['buddy_email'], $email_info['subject'], $email_template, "From: ". $from);
