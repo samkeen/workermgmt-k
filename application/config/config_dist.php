@@ -1,4 +1,15 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
+
+/**
+ * if IN_DEV_MODE is true
+ *  - Allowes the use of 'use_mock_ldap'
+ *  - Turns off ssl verification for curl calls to bugzilla
+ *  - Turns on the Kohana Profiler
+ */
+define('IN_DEV_MODE',false);
+// if true, will send email to buddy specified in hiring form
+define('SEND_EMAIL',true);
+
 /**
  * Base path of the web site. If this includes a domain, eg: localhost/kohana/
  * then a full URL will be used, eg: http://localhost/kohana/. If it only includes

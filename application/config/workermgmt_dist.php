@@ -1,7 +1,6 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
-$config['bugzilla_url'] = '';
-$config['debug_logging'] = true;
+$config['bugzilla_url'] = 'BUGZILLA DEV or PROD URL';
 $config['ldap_anon_bind'] = '';
 $config['ldap_anon_password'] = '';
 $config['ldap_host'] = '';
@@ -23,4 +22,19 @@ $config['ldap_base_dn'] = '';
  */
 $config['use_mock_ldap'] = false;
 
+/**
+ * For the desired from address: "Somebody" <somebody@somewhere.com>
+ *   $config['email_from_address'] = 'somebody@somewhere.com'
+ *   $config['email_from_label'] = 'Somebody';
+ */
+$config['buddy_email_from_address'] = 'Someone';
+$config['buddy_email_from_label'] = 'someone@somewhere.com';
+$config['buddy_email_subject'] = 'Hello';
 
+$config['buddy_email_template'] = <<<XOXO
+This is the email Body template with place holders in this form
+
+Dear %email_recipient%,
+
+THis email is to inform you that...
+XOXO;
