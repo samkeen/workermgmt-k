@@ -2,7 +2,6 @@
 
 class Controller extends Controller_Core {
 
-    // "controller::method"
     private $non_authed_areas = array(
         'authenticate::login',
         'authenticate::logout'
@@ -13,7 +12,7 @@ class Controller extends Controller_Core {
 
         Kohana::config_load('workermgmt');
         
-        $this->profiler = !IN_PRODUCTION ? new Profiler : null;
+        $this->profiler = IN_DEV_MODE ? new Profiler : null;
         
         $requested_area = strtolower(Router::$controller."::".Router::$method);
         if( ! in_array($requested_area, $this->non_authed_areas)) {
@@ -25,7 +24,7 @@ class Controller extends Controller_Core {
 
     }
     protected function get_ldap() {
-        if( ! IN_PRODUCTION && kohana::config('workermgmt.use_mock_ldap')) {
+        if( IN_DEV_MODE && kohana::config('workermgmt.use_mock_ldap')) {
           $ldap = new Mock_Ldap(kohana::config('workermgmt'), $this->ldap_credentials());
         } else {
           $ldap = new Ldap(kohana::config('workermgmt'), $this->ldap_credentials());
@@ -38,6 +37,4 @@ class Controller extends Controller_Core {
             'password' => isset ($_SERVER['PHP_AUTH_PW'])?$_SERVER['PHP_AUTH_PW']:null
         );
     }
-
-
 }
