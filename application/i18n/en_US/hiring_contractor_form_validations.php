@@ -49,7 +49,7 @@ $lang = array(
     ),
     'email_address' => array(
         'required' => 'Email is required',
-        'default' => 'Invalid Input'
+        'default' => 'Not a valid email address'
     ),
     'pay_rate' => array(
         'required' => 'Pay Rate is required',

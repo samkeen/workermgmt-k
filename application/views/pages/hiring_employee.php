@@ -18,6 +18,10 @@
     echo form::auto_label('last_name');
     echo form::input('last_name', $form['last_name'], 'size="20"');
     client::validation('last_name');
+
+    echo form::auto_label('email_address','Email Address (<em>an existing email for this person</em>)');
+    echo form::input('email_address', $form['email_address'], 'size="30"');
+    client::validation('email_address');
     
     echo form::auto_label('start_date');
     echo form::input('start_date', $form['start_date'], 'size="10"');

@@ -16,6 +16,10 @@ $lang = array(
         'required' => 'Last Name is required',
         'default' => 'Invalid Input'
     ),
+    'email_address' => array(
+        'required' => 'Email is required',
+        'default' => 'Not a valid email address'
+    ),
     'start_date' => array(
         'required' => 'Start Date is required',
         'default' => 'Invalid Input'
