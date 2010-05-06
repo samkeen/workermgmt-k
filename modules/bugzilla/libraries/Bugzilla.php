@@ -297,7 +297,7 @@ class Bugzilla_Core {
                 'headers' => $additional_headers,
                 // when not in production have curl ignore ssl warings which are
                 // most ofter due to self signed certs
-                'ssl_verify_peer' => IN_PRODUCTION
+                'ssl_verify_peer' => ! IN_DEV_MODE
                 )
         );
         $set_cookies = $this->curler->response_headers('Set-Cookie');
