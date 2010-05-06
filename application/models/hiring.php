@@ -23,25 +23,51 @@ class Hiring_Model {
   /**
    *
    * Available $template vars are:
-   *  {{buddy name}}
+   *  {{buddy_name}}
    *  {{newhire_name}}
    *  {{newhire_email}}
    *  {{hiring_manager_name}}
+   *  {{hiring_manager_email}}
    *
+   * These keynames will be in $email_info
    *
+   * @param string $email_template
+   * @param string $from_emai
+   * @param array $email_info
+   * ex: array(
+   *  [from_address] => noreplay@somewhere.com
+   *  [from_label] => Buddy Notifier
+   *  [subject] => Your Buddy Email
+   *  [buddy_name] => My Buddy
+   *  [buddy_email] => mybuddy@somewhere.com
+   *  [newhire_name] => New Guy
+   *  [newhire_email] => newguy@yahoo.com
+   *  [hiring_manager_name] => Joe Manager
+   *  [hiring_manager_email] => jmanager@somewhere.com
+   * )
    */
-  public function notify_buddy($input) {
-    print_r($input);die;
+  public function notify_buddy($email_template, $email_info) {
+    $mail_sent = false;
     if(SEND_EMAIL) {
-      Kohana::config_load('workermgmt');
-      $from = Kohana::config('workermgmt.email_from_address');
-      $template = Kohana::config('workermgmt.buddy_email_template');
-//      $to = isset($input['']) ? :;
-//      $mail_result = mail(implode(", ", $notified_people), $subject, $body, "From: ". $from);
-      Kohana::log('notice', $message);
+      // filter what will be the from and to emails for the mail() function
+      if(filter_var($email_info['from_address'], FILTER_VALIDATE_EMAIL)
+         && filter_var($email_info['buddy_email'], FILTER_VALIDATE_EMAIL)) {
+
+        // replace elements in email template
+        foreach ($email_info as $placeholder_key => $value) {
+          $email_template = str_replace("%{$placeholder_key}%", $value, $email_template);
+        }
+         $from = !empty ($email_info['from_label']) ? "\"{$email_info['from_label']}\" <{$email_info['from_address']}>" : $email_info['from_address'];
+         $mail_sent = mail($email_info['buddy_email'], $email_info['subject'], $email_template, "From: ". $from);
+         kohana::log('info', "Sent Buddy Notification Email to [{$email_info['buddy_email']}] from [{$from}]");
+      } else {
+        kohana::log('error', "One or both To and From email addresses for the Notify Buddy email were invalid\n"
+                ."To: {$email_info['buddy email']}\nFrom:{$from}");
+      }
     } else {
-      Kohana::log('debug', "SEND_EMAIL is false so Buddy notification email not sent");
+      kohana::log('debug', "SEND_EMAIL is false so Buddy notification email not sent");
     }
+    return $mail_sent;
   }
 
   

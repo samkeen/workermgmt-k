@@ -63,26 +63,27 @@ class Hiring_Controller extends Template_Controller {
          * track required fields with this array, Validator uses it and form helper
          * uses it to determine which fields to decorate as 'required' in the UI
          */
-        $required_fields = array('hire_type','first_name','last_name','start_date'
-                                 ,'manager','buddy','location');
+        $required_fields = array('hire_type','first_name','last_name','email_address',
+                                 'start_date' ,'manager','buddy','location');
         $form = array(
-                'hire_type' => '',
-                'first_name' => '',
-                'last_name' => '',
-                'start_date' => '',
-                'end_date' => '',
-                'manager' => '',
-                'buddy' => '',
-                'location' => '',
-                'location_other' => '',
-                'mail_needed' => '',
-                'default_username' => '',
-                'mail_alias' => '',
-                'mail_lists' => '',
-                'other_comments' => '',
-                'machine_needed' => '',
-                'machine_type' => '',
-                'machine_special_requests' => '',
+            'hire_type' => '',
+            'first_name' => '',
+            'last_name' => '',
+            'email_address' => '',
+            'start_date' => '',
+            'end_date' => '',
+            'manager' => '',
+            'buddy' => '',
+            'location' => '',
+            'location_other' => '',
+            'mail_needed' => '',
+            'default_username' => '',
+            'mail_alias' => '',
+            'mail_lists' => '',
+            'other_comments' => '',
+            'machine_needed' => '',
+            'machine_type' => '',
+            'machine_special_requests' => '',
         );
         $errors = $form;
 
@@ -92,6 +93,7 @@ class Hiring_Controller extends Template_Controller {
             $post->pre_filter('trim', true);
             $post->add_rules('start_date', 'valid::date');
             $post->add_rules('end_date', 'valid::date');
+            $post->add_rules('email_address', 'valid::email');
             if(trim($this->input->post('hire_type'))=='Intern') {
                 array_push($required_fields,'end_date');
             }
@@ -117,9 +119,12 @@ class Hiring_Controller extends Template_Controller {
                 if($form['mail_needed']) {
                     $bugs_to_file[] = Bugzilla::BUG_EMAIL_SETUP;
                 }
+                // File the appropriate Bugs
                 $this->file_these($bugs_to_file, $form);
                 // Send Buddy Email
-                
+                if( ! empty($form['buddy']) ) {
+                  $this->notify_buddy($form, $hiring);
+                }
 
                 if( ! client::has_errors()) {
                     url::redirect('hiring/employee');
@@ -192,6 +197,7 @@ class Hiring_Controller extends Template_Controller {
             $post->pre_filter('trim', true);
             $post->add_rules('start_date', 'valid::date');
             $post->add_rules('end_date', 'valid::date');
+            $post->add_rules('email_address', 'valid::email');
             if($this->input->post('mail_needed')=='1') {
                 array_push($required_fields,'location');
             }
@@ -212,8 +218,12 @@ class Hiring_Controller extends Template_Controller {
                 if($form['mail_needed']) {
                     $bugs_to_file[] = Bugzilla::BUG_EMAIL_SETUP;
                 }
+                // File the appropriate Bugs
                 $this->file_these($bugs_to_file, $form);
-
+                // Send Buddy Email
+                if( ! empty($form['buddy']) ) {
+                  $this->notify_buddy($form, $hiring);
+                }
                 if( ! client::has_errors()) {
                     url::redirect('hiring/contractor');
                 }
@@ -281,5 +291,40 @@ class Hiring_Controller extends Template_Controller {
         // merge the addtions w/ the current submitted form elements
         return array_merge($form,$additions);
        
+    }
+    /**
+     * Sends the email to notify the current emp that they are a buddy to this new
+     * employee.
+     * 
+     * @param array $form_input
+     * @param Hiring_Model $hiring
+     */
+    private function notify_buddy($form_input, Hiring_Model $hiring) {
+      
+      $template = kohana::config('workermgmt.buddy_email_template');
+      $email_info['from_address'] = kohana::config('workermgmt.buddy_email_from_address');
+      // make sure label is at least an empty string
+      $email_info['from_label'] = kohana::config('workermgmt.buddy_email_from_label')
+        ? kohana::config('workermgmt.buddy_email_from_label')
+        : '';
+      $email_info['subject'] = kohana::config('workermgmt.buddy_email_subject');
+
+      $email_info['buddy_name'] = isset($form_input['buddy_name'])?ucwords($form_input['buddy_name']):null;
+      $email_info['buddy_email'] = isset($form_input['buddy'])?$form_input['buddy']:null;
+      $email_info['newhire_name'] = isset($form_input['fullname'])?ucwords($form_input['fullname']):null;
+      $email_info['newhire_email'] = isset($form_input['email_address'])?$form_input['email_address']:null;
+      $email_info['hiring_manager_name'] = isset($form_input['manager_name'])?$form_input['manager_name']:null;
+      $email_info['hiring_manager_email'] = isset($form_input['manager'])?$form_input['manager']:null;
+      if( ! in_array(null, $email_info, true)) {
+          if($hiring->notify_buddy($template, $email_info)) {
+            client::messageSend("The Buddy Notification Email was sent to {$email_info['buddy_email']}", E_USER_NOTICE);
+          } else {
+            client::messageSend("The Buddy Notification Email was not sent due to and error", E_USER_ERROR);
+          }
+      } else {
+          client::messageSend("The Buddy Notification Email was not sent due to and error", E_USER_ERROR);
+          kohana::log('error', "Requiered fields missing for \$email_info\n".print_r($email_info,true));
+      }
+      
     }
 }
